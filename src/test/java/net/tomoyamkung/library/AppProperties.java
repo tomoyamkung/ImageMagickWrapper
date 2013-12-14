@@ -14,7 +14,8 @@ public class AppProperties {
 	private AppProperties() {
 		prop = new Properties();
 		try {
-			prop.load(this.getClass().getClassLoader().getResourceAsStream(APP_PROPERTIES));
+			prop.load(this.getClass().getClassLoader()
+					.getResourceAsStream(APP_PROPERTIES));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -27,5 +28,5 @@ public class AppProperties {
 	public String get(String key) {
 		return prop.getProperty(key).trim();
 	}
-	
+
 }
