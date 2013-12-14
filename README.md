@@ -13,6 +13,7 @@ ImageMagickWrapper は ImageMagick のすべての機能をラップするもの
 ImageMagickWrapper は次の機能だけを提供するライブラリです。
 
 - Exif を削除する
+- サムネイル画像を作成する
 
 
 # 開発環境
@@ -53,6 +54,31 @@ Apache Maven 3.0.4 (r1232337; 2012-01-17 17:44:56+0900)
 # お知らせ
 
 ## 2013/12/14
+
+### サムネイル画像を作成する機能を作成しました
+
+サムネイル画像を作成するメソッド `ImageMagick#createThumbnail` を作成しました。
+
+```java
+/**
+ * サムネイル画像を作成する。
+ * 
+ * @param commandPath
+ *            convert コマンドの絶対パス。
+ * @param src
+ *            生成元のファイル。Exif を削除したい画像ファイル
+ * @param dest
+ *            生成先のファイル。このファイルにサムネイル画像を作成する
+ * @param size
+ *            サムネイルサイズ。[0-9]{1,}x[0-9]{1,} で指定する
+ * @throws IOException
+ *             commandPath に指定されているパスが convert コマンドではなかった場合
+ * @throws InterruptedException
+ *             ImageMagick の操作に失敗した場合
+ */
+public static void createThumbnail(String commandPath, File src, File dest, String size) throws IOException, InterruptedException
+```
+
 
 ### Exif を削除する機能を作成しました
 
