@@ -54,6 +54,11 @@ public class ImageMagickTest {
 			"./src/test/resources/notfound");
 
 	/**
+	 * サムネイル画像の縦横サイズ。
+	 */
+	private static final String SIZE = "200x100";
+
+	/**
 	 * <code>ImageMagick#createThumbnail</code> についてのテストケース。
 	 * 
 	 * @author tomoyamkung
@@ -61,11 +66,6 @@ public class ImageMagickTest {
 	 */
 	@RunWith(Enclosed.class)
 	public static class CreateThumbnail {
-
-		/**
-		 * サムネイル画像の縦横サイズ。
-		 */
-		private static final String SIZE = "200x100";
 
 		public static class 異常系 {
 
@@ -275,6 +275,119 @@ public class ImageMagickTest {
 
 				assertThat("dest のほうが src よりもファイルサイズが小さいこと",
 						dest.length() < src.length(), is(true));
+			}
+
+		}
+	}
+
+	/**
+	 * <code>ImageMagick#runProcessDirectly</code> についてのテストケース。
+	 * 
+	 * @author tomoyamkung
+	 * 
+	 */
+	@RunWith(Enclosed.class)
+	public static class RunProcessDirectly {
+
+		public static class 異常系 {
+
+			@Before
+			public void setUp() throws Exception {
+				deleteTestFiles();
+			}
+
+			@After
+			public void tearDown() throws Exception {
+				deleteTestFiles();
+			}
+
+			@Test(expected = IllegalArgumentException.class)
+			public void コマンドパスがnullの場合() throws Exception {
+				// Setup
+				Command command = new Command(null);
+				command.addParameter("dummy");
+
+				// Exercise
+				ImageMagick.runProcessDirectly(command);
+				// Verify
+			}
+
+			@Test(expected = IllegalArgumentException.class)
+			public void パラメータが空の場合() throws Exception {
+				// Setup
+				Command command = new Command(COMMAND_PATH);
+
+				// Exercise
+				ImageMagick.runProcessDirectly(command);
+				// Verify
+			}
+
+		}
+
+		public static class 正常系 {
+
+			@Before
+			public void setUp() throws Exception {
+				deleteTestFiles();
+			}
+
+			@After
+			public void tearDown() throws Exception {
+				deleteTestFiles();
+			}
+
+			@Test
+			public void パラメータを直接指定してExifを削除する() throws Exception {
+				// Setup
+				Command command = new Command(COMMAND_PATH);
+				command.addParameter(src.getAbsolutePath())
+						.addParameter("-strip")
+						.addParameter(dest.getAbsolutePath());
+
+				Date srcModifiedDate = new Date(src.lastModified());
+
+				// Exercise
+				ImageMagick.runProcessDirectly(command);
+
+				// Verify
+				assertThat("画像ファイルが生成されること", dest.exists(), is(true));
+
+				Date destModifiedDate = new Date(dest.lastModified());
+				assertThat("dest のほうが src よりも時間的に後に作成されていること",
+						destModifiedDate.after(srcModifiedDate), is(true));
+
+				assertThat("dest のほうが src よりもファイルサイズが小さいこと",
+						dest.length() < src.length(), is(true));
+			}
+
+			@Test
+			public void 縦横比を維持してサイズ200x100のサムネイルを作成する() throws Exception {
+				// Setup
+				Command command = new Command(COMMAND_PATH);
+				command.addParameter("-thumbnail").addParameter(SIZE)
+						.addParameter(src.getAbsolutePath())
+						.addParameter(dest.getAbsolutePath());
+
+				Date srcModifiedDate = new Date(src.lastModified());
+
+				// Exercise
+				ImageMagick.runProcessDirectly(command);
+
+				// Verify
+				assertThat("画像ファイルが生成されること", dest.exists(), is(true));
+
+				Date destModifiedDate = new Date(dest.lastModified());
+				assertThat("dest のほうが src よりも時間的に後に作成されていること",
+						destModifiedDate.after(srcModifiedDate), is(true));
+
+				assertThat("dest のほうが src よりもファイルサイズが小さいこと",
+						dest.length() < src.length(), is(true));
+
+				BufferedImage destImage = ImageIO.read(dest);
+				assertThat("縦横比を維持したため width は 200 にならない",
+						destImage.getWidth(), is(133));
+				assertThat("dest の高さが 100 ピクセルであること", destImage.getHeight(),
+						is(100));
 			}
 
 		}

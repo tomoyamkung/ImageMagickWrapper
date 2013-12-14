@@ -8,12 +8,12 @@ ImageMagickWrapper
 
 # ImageMagickWrapper でできること
 
-ImageMagickWrapper は ImageMagick のすべての機能をラップするものではありません。
-
-ImageMagickWrapper は次の機能だけを提供するライブラリです。
+ImageMagickWrapper は次の機能をラップするライブラリです。
 
 - Exif を削除する
 - サムネイル画像を作成する
+
+上記のほかにも、ImageMagick の実行コマンドとパラメータを直接指定できる機能も備えていますので、コマンドラインから ImageMagick を実行する感覚で使うことができます。
 
 
 # 開発環境
@@ -53,7 +53,36 @@ Apache Maven 3.0.4 (r1232337; 2012-01-17 17:44:56+0900)
 
 # お知らせ
 
+
+## 2013/12/15
+
+
+### コマンドとパラメータを直接指定する機能を作成しました
+
+ImageMagick の実行コマンドとパラメータを直接指定できるメソッド `ImageMagick#runProcessDirectly` を作成しました。
+
+このメソッドを使えば `ImageMagick#removeExif` や `ImageMagick#createThumbnail` を使うことなく同様の処理ができます。
+おそらく ImageMagick のすべての機能を実行することができるはずです。
+
+実行コマンドとパラメータは `Command` クラスで指定します。詳しくは `ImageMagickTest` を参照してください。
+
+```java
+/**
+ * ImageMagick のコマンドを直接実行する。
+ * 
+ * @param command
+ *            コマンドパスとパラメータを格納した <code>Command</code> オブジェクト
+ * @throws IOException
+ *             commandPath に指定されているパスが convert コマンドではなかった場合
+ * @throws InterruptedException
+ *             ImageMagick の操作に失敗した場合
+ */
+public static void runProcessDirectly(Command command) throws IOException, InterruptedException
+```
+
+
 ## 2013/12/14
+
 
 ### サムネイル画像を作成する機能を作成しました
 

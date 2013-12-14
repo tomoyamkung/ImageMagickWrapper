@@ -183,4 +183,26 @@ public class ImageMagick {
 		executeProcess(builder);
 	}
 
+	/**
+	 * ImageMagick のコマンドを直接実行する。
+	 * 
+	 * @param command
+	 *            コマンドパスとパラメータを格納した <code>Command</code> オブジェクト
+	 * @throws IOException
+	 *             commandPath に指定されているパスが convert コマンドではなかった場合
+	 * @throws InterruptedException
+	 *             ImageMagick の操作に失敗した場合
+	 */
+	public static void runProcessDirectly(Command command) throws IOException,
+			InterruptedException {
+		command.validate();
+
+		if (log.isDebugEnabled()) {
+			log.debug(command.toString());
+		}
+
+		ProcessBuilder builder = new ProcessBuilder(command.getCommand());
+		executeProcess(builder);
+	}
+
 }
