@@ -3,6 +3,8 @@ package net.tomoyamkung.library;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +39,7 @@ public class ImageMagick {
 		validateCommandPath(commandPath);
 		validateSrcFile(src);
 		validateDestFile(dest);
-		validateThumbnailSize(size);
+		validateSize(size, "サムネイルサイズ");
 
 		if (log.isDebugEnabled()) {
 			log.debug(String.format(
@@ -67,7 +69,7 @@ public class ImageMagick {
 	}
 
 	/**
-	 * サムネイルサイズの妥当性を確認する。
+	 * サイズ指定の妥当性を確認する。
 	 * 
 	 * 次の条件に当てはまる場合は不適切と見なし <code>IllegalArgumentException</code> を生成する。
 	 * 
@@ -78,16 +80,19 @@ public class ImageMagick {
 	 * </ul>
 	 * 
 	 * @param size
+	 * @param keyword
+	 *            認する項目名
 	 */
-	private static void validateThumbnailSize(String size) {
+	private static void validateSize(String size, String keyword) {
 		if (size == null || size.isEmpty()) {
-			throw new IllegalArgumentException("size may not be specified.");
+			throw new IllegalArgumentException(String.format(
+					"%s may not be specified.", keyword));
 		}
 
 		String regexp = "[0-9]{1,}x[0-9]{1,}";
 		if (!size.matches(regexp)) {
 			throw new IllegalArgumentException(String.format(
-					"size は %s で指定してください。", regexp));
+					"%s は %s で指定してください。", keyword, regexp));
 		}
 	}
 
@@ -203,6 +208,107 @@ public class ImageMagick {
 
 		ProcessBuilder builder = new ProcessBuilder(command.getCommand());
 		executeProcess(builder);
+	}
+
+	/**
+	 * 画像をタイル状に結合する。
+	 * 
+	 * @param commandPath
+	 *            montage コマンドの絶対パス。
+	 * @param srcFiles
+	 *            結合用画像ファイルを格納したリスト。
+	 * @param tile
+	 *            結合する形式（2x2 とか 9x5 といった形式で指定する）
+	 * @param geometry
+	 *            結合元画像ファイルの大きさ（100x100 といった形式で指定する）
+	 * @param dest
+	 *            生成先のファイル。このファイルに画像を作成する
+	 * @throws IOException
+	 *             commandPath に指定されているパスが montage コマンドではなかった場合
+	 * @throws InterruptedException
+	 *             ImageMagick の操作に失敗した場合
+	 */
+	public static void createMontage(String commandPath, List<File> srcFiles,
+			String tile, String geometry, File dest) throws IOException,
+			InterruptedException {
+		validateCommandPath(commandPath);
+		validateSrcFiles(srcFiles);
+		validateSize(tile, "結合する形式");
+		validateSrcFileSize(srcFiles, tile);
+		validateSize(geometry, "結合元画像ファイルの大きさ");
+		validateDestFile(dest);
+
+		if (log.isDebugEnabled()) {
+			String message = String
+					.format("commandPath:%s, srcFiles:%s, tile:%s, geometry:%s, dest:%s",
+							commandPath, srcFiles.toString(), tile, geometry,
+							dest);
+			log.debug(message);
+		}
+
+		List<String> command = new ArrayList<String>();
+		command.add(commandPath);
+		command.add("-tile");
+		command.add(tile);
+		command.add("-geometry");
+		command.add(geometry);
+		for (File src : srcFiles) {
+			command.add(src.getAbsolutePath());
+		}
+		command.add(dest.getAbsolutePath());
+
+		ProcessBuilder builder = new ProcessBuilder(command);
+		executeProcess(builder);
+	}
+
+	/**
+	 * 生成元画像の枚数と tile で指定した値が一致しているかを確認する。
+	 * 
+	 * 次の条件に当てはまる場合は不適切と見なし <code>IllegalArgumentException</code> を生成する。
+	 * 
+	 * <ul>
+	 * <li>生成元画像の枚数と tile で指定した値が一致していない</li>
+	 * </ul>
+	 * 
+	 * @param srcFiles
+	 *            生成元のファイルを格納したリスト
+	 * @param tile
+	 *            結合する形式
+	 */
+	private static void validateSrcFileSize(List<File> srcFiles, String tile) {
+		String[] split = tile.split("x");
+		int numOfColumns = Integer.parseInt(split[0]);
+		int numOfRows = Integer.parseInt(split[1]);
+		int numOfTiles = numOfColumns * numOfRows;
+		if (numOfTiles != srcFiles.size()) {
+			throw new IllegalArgumentException("結合する形式と画像の枚数が合っていません。");
+		}
+	}
+
+	/**
+	 * 生成元ファイルの妥当性を確認する。
+	 * 
+	 * 次の条件に当てはまる場合は不適切と見なし例外を生成する。
+	 * 
+	 * <ul>
+	 * <li>null である → <code>IllegalArgumentException</code> を生成する</li>
+	 * <li>空である → <code>IllegalArgumentException</code> を生成する</li>
+	 * <li>存在しないファイルが含まれている → <code>FileNotFoundException</code> を生成する</li>
+	 * </ul>
+	 * 
+	 * @param srcFiles
+	 *            生成元のファイルを格納したリスト
+	 * @throws FileNotFoundException
+	 *             ファイルが存在しない場合
+	 */
+	private static void validateSrcFiles(List<File> srcFiles)
+			throws FileNotFoundException {
+		if (srcFiles == null || srcFiles.isEmpty()) {
+			throw new IllegalArgumentException("srcFiles may not be specified.");
+		}
+		for (File src : srcFiles) {
+			validateSrcFile(src);
+		}
 	}
 
 }

@@ -12,8 +12,10 @@ ImageMagickWrapper は次の機能をラップするライブラリです。
 
 - Exif を削除する
 - サムネイル画像を作成する
+- 画像を結合する
 
-上記のほかにも、ImageMagick の実行コマンドとパラメータを直接指定できる機能も備えていますので、コマンドラインから ImageMagick を実行する感覚で使うことができます。
+上記のほかにも、ImageMagick の実行コマンドとパラメータを直接指定できる機能も備えています。
+この機能を使えば上記メソッドを使用せずに同じことができますし、上記メソッド以外のことも実行することが可能です。
 
 
 # 開発環境
@@ -52,6 +54,36 @@ Apache Maven 3.0.4 (r1232337; 2012-01-17 17:44:56+0900)
 
 
 # お知らせ
+
+
+## 2013/12/16
+
+
+### 画像を結合する機能を作成しました
+
+タイル状に画像を結合するメソッド `ImageMagick#createThumbnail` を作成しました。
+
+```java
+/**
+ * 画像をタイル状に結合する。
+ * 
+ * @param commandPath
+ *            montage コマンドの絶対パス。
+ * @param srcFiles
+ *            結合用画像ファイルを格納したリスト。
+ * @param tile
+ *            結合する形式（2x2 とか 9x5 といった形式で指定する）
+ * @param geometry
+ *            結合元画像ファイルの大きさ（100x100 といった形式で指定する）
+ * @param dest
+ *            生成先のファイル。このファイルに画像を作成する
+ * @throws IOException
+ *             commandPath に指定されているパスが montage コマンドではなかった場合
+ * @throws InterruptedException
+ *             ImageMagick の操作に失敗した場合
+ */
+public static void createMontage(String commandPath, List<File> srcFiles, String tile, String geometry, File dest) throws IOException, InterruptedException
+```
 
 
 ## 2013/12/15

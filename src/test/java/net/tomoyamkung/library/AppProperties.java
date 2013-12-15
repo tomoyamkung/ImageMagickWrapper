@@ -26,7 +26,12 @@ public class AppProperties {
 	}
 
 	public String get(String key) {
-		return prop.getProperty(key).trim();
+		String value = prop.getProperty(key);
+		if (value == null) {
+			throw new IllegalArgumentException("value is not found.");
+		}
+
+		return value.trim();
 	}
 
 }
