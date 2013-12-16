@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.tomoyamkung.library.util.ListUtil;
+import net.tomoyamkung.library.util.StringUtil;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -41,15 +44,27 @@ public class ImageMagick {
 		validateDestFile(dest);
 		validateSize(size, "サムネイルサイズ");
 
-		if (log.isDebugEnabled()) {
-			log.debug(String.format(
-					"commandPath:%s, srcPath:%s, destPath:%s, size:%s",
-					commandPath, src, dest, size));
-		}
+		writeLog(String.format(
+				"commandPath:%s, srcPath:%s, destPath:%s, size:%s",
+				commandPath, src, dest, size));
 
 		ProcessBuilder builder = new ProcessBuilder(commandPath, "-thumbnail",
 				size, src.getAbsolutePath(), dest.getAbsolutePath());
 		executeProcess(builder);
+	}
+
+	/**
+	 * ログに出力する。
+	 * 
+	 * ログレベルが debug に設定されている場合、ログに出力する。
+	 * 
+	 * @param message
+	 *            出力するメッセージ
+	 */
+	private static void writeLog(String message) {
+		if (log.isDebugEnabled()) {
+			log.debug(message);
+		}
 	}
 
 	/**
@@ -84,7 +99,7 @@ public class ImageMagick {
 	 *            認する項目名
 	 */
 	private static void validateSize(String size, String keyword) {
-		if (size == null || size.isEmpty()) {
+		if (StringUtil.isNullOrEmpty(size)) {
 			throw new IllegalArgumentException(String.format(
 					"%s may not be specified.", keyword));
 		}
@@ -152,7 +167,7 @@ public class ImageMagick {
 	 *            使用するコマンドのパス
 	 */
 	private static void validateCommandPath(String commandPath) {
-		if (commandPath == null || commandPath.isEmpty()) {
+		if (StringUtil.isNullOrEmpty(commandPath)) {
 			throw new IllegalArgumentException(
 					"commandPath may not be specified.");
 		}
@@ -178,10 +193,8 @@ public class ImageMagick {
 		validateSrcFile(src);
 		validateDestFile(dest);
 
-		if (log.isDebugEnabled()) {
-			log.debug(String.format("commandPath:%s, srcPath:%s, destPath:%s",
-					commandPath, src, dest));
-		}
+		writeLog(String.format("commandPath:%s, srcPath:%s, destPath:%s",
+				commandPath, src, dest));
 
 		ProcessBuilder builder = new ProcessBuilder(commandPath,
 				src.getAbsolutePath(), "-strip", dest.getAbsolutePath());
@@ -202,9 +215,7 @@ public class ImageMagick {
 			InterruptedException {
 		command.validate();
 
-		if (log.isDebugEnabled()) {
-			log.debug(command.toString());
-		}
+		writeLog(command.toString());
 
 		ProcessBuilder builder = new ProcessBuilder(command.getCommand());
 		executeProcess(builder);
@@ -238,13 +249,10 @@ public class ImageMagick {
 		validateSize(geometry, "結合元画像ファイルの大きさ");
 		validateDestFile(dest);
 
-		if (log.isDebugEnabled()) {
-			String message = String
-					.format("commandPath:%s, srcFiles:%s, tile:%s, geometry:%s, dest:%s",
-							commandPath, srcFiles.toString(), tile, geometry,
-							dest);
-			log.debug(message);
-		}
+		String message = String.format(
+				"commandPath:%s, srcFiles:%s, tile:%s, geometry:%s, dest:%s",
+				commandPath, srcFiles.toString(), tile, geometry, dest);
+		writeLog(message);
 
 		List<String> command = new ArrayList<String>();
 		command.add(commandPath);
@@ -303,7 +311,7 @@ public class ImageMagick {
 	 */
 	private static void validateSrcFiles(List<File> srcFiles)
 			throws FileNotFoundException {
-		if (srcFiles == null || srcFiles.isEmpty()) {
+		if(ListUtil.isNullOrEmpty(srcFiles)) {
 			throw new IllegalArgumentException("srcFiles may not be specified.");
 		}
 		for (File src : srcFiles) {

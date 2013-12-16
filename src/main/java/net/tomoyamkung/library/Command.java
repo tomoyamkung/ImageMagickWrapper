@@ -3,6 +3,9 @@ package net.tomoyamkung.library;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.tomoyamkung.library.util.ListUtil;
+import net.tomoyamkung.library.util.StringUtil;
+
 /**
  * ImageMagick の実行コマンドパスとコマンドパラメータを保持するクラス。
  * 
@@ -59,11 +62,12 @@ public class Command {
 	 * </ul>
 	 */
 	public void validate() {
-		if (commandPath == null || commandPath.isEmpty()) {
+		if(StringUtil.isNullOrEmpty(commandPath)) {
 			throw new IllegalArgumentException(
 					"commandPath may not be specified.");
 		}
-		if (parameters == null || parameters.isEmpty()) {
+		
+		if(ListUtil.isNullOrEmpty(parameters)) {
 			throw new IllegalArgumentException(
 					"parameters may not be specified.");
 		}
