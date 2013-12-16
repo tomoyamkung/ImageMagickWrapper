@@ -17,12 +17,30 @@
     <github.global.server>github</github.global.server>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>tomoyamkung-github</id>
+      <url>https://raw.github.com/tomoyamkung/UtilityGirl/mvn-repo/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <!-- Log -->
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
+    </dependency>
+
+    <!-- Utility -->
+    <dependency>
+      <groupId>net.tomoyamkung.library</groupId>
+      <artifactId>UtilityGirl</artifactId>
+      <version>1.0.1</version>
     </dependency>
     
     <!-- TEST -->
