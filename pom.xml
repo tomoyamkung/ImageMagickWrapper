@@ -12,6 +12,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- github server corresponds to entry in ~/.m2/settings.xml -->
+    <github.global.server>github</github.global.server>
   </properties>
 
   <dependencies>
@@ -59,6 +62,7 @@
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -71,7 +75,47 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
+        <version>0.8</version>
+        <configuration>
+          <!-- jarファイルをディプロイする時のコミットメッセージ -->
+          <message>Maven artifacts for ${project.version}</message>
+          <!-- Jekyllという静的ページを生成するツールは無効 -->
+          <noJekyll>true</noJekyll>
+          <!-- 1.で指定したパスと同じものを指定 -->
+          <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+          <!-- Mavenリポジトリにするリモートのブランチ名 -->
+          <branch>refs/heads/mvn-repo</branch>
+          <includes>
+            <include>**/*</include>
+          </includes>
+          <!-- GitHubリポジトリ名 -->
+          <repositoryName>ImageMagickWrapper</repositoryName>
+          <!-- GitHubユーザ名  -->
+          <repositoryOwner>tomoyamkung</repositoryOwner>
+        </configuration>
+        <executions>
+          <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+          <execution>
+            <goals>
+              <goal>site</goal>
+            </goals>
+            <phase>deploy</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-  
+
+  <distributionManagement>
+    <repository>
+      <id>internal.repo</id>
+      <name>Temporary Staging Repository</name>
+      <url>file://${project.build.directory}/mvn-repo</url>
+    </repository>
+  </distributionManagement>
+
 </project>

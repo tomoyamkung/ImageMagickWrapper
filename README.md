@@ -52,11 +52,76 @@ Apache Maven 3.0.4 (r1232337; 2012-01-17 17:44:56+0900)
 
 この JAR をプロジェクトにインポートしてください。
 
+---
+
+[GitHubをMavenリポジトリにしよう | おいぬま日報](http://blog.lampetty.net/blog_ja/index.php/archives/527) を参考に mvn-repo ブランチに JAR をデプロイしました。
+
+[Maven](http://maven.apache.org/) を使われている場合は pom.xml に次を追記いただくことでもご利用いただけます。
+
+リポジトリの追加。
+
+```xml
+<repositories>
+  <repository>
+    <id>tomoyamkung-github</id>
+    <url>https://raw.github.com/tomoyamkung/ImageMagickWrapper/mvn-repo/</url>
+    <snapshots>
+      <enabled>true</enabled>
+      <updatePolicy>always</updatePolicy>
+    </snapshots>
+  </repository>
+</repositories>
+```
+
+JAR の追加。
+
+```xml
+<dependency>
+  <groupId>net.tomoyamkung.library</groupId>
+  <artifactId>ImageMagickWrapper</artifactId>
+  <version>0.1</version>
+</dependency>
+```
+
 
 # お知らせ
 
 
 ## 2013/12/16
+
+
+### mvn-repo ブランチに JAR をデプロイしました
+
+[GitHubをMavenリポジトリにしよう | おいぬま日報](http://blog.lampetty.net/blog_ja/index.php/archives/527) を参考に mvn-repo ブランチに JAR をデプロイしました。
+
+- [ImageMagickWrapper/net/tomoyamkung/library/ImageMagickWrapper/0.1 at mvn-repo · tomoyamkung/ImageMagickWrapper](https://github.com/tomoyamkung/ImageMagickWrapper/tree/mvn-repo/net/tomoyamkung/library/ImageMagickWrapper/0.1)
+
+[Maven](http://maven.apache.org/) を使われている場合は pom.xml に次を追記いただくことでもご利用いただけます。
+
+リポジトリの追加。
+
+```xml
+<repositories>
+  <repository>
+    <id>tomoyamkung-github</id>
+    <url>https://raw.github.com/tomoyamkung/ImageMagickWrapper/mvn-repo/</url>
+    <snapshots>
+      <enabled>true</enabled>
+      <updatePolicy>always</updatePolicy>
+    </snapshots>
+  </repository>
+</repositories>
+```
+
+JAR の追加。
+
+```xml
+<dependency>
+  <groupId>net.tomoyamkung.library</groupId>
+  <artifactId>ImageMagickWrapper</artifactId>
+  <version>0.1</version>
+</dependency>
+```
 
 
 ### 画像を結合する機能を作成しました
