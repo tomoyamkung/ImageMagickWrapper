@@ -13,6 +13,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import net.tomoyamkung.library.props.AppProperties;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
