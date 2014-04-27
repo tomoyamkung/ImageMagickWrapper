@@ -40,7 +40,7 @@
     <dependency>
       <groupId>net.tomoyamkung.library</groupId>
       <artifactId>UtilityGirl</artifactId>
-      <version>1.1</version>
+      <version>1.2</version>
     </dependency>
     
     <!-- TEST -->
