@@ -283,15 +283,15 @@ public class ImageMagickTest {
 						GEOMETRY, dest);
 
 				// Verify
-				assertThat("画像ファイルが生成されること", dest.exists(), is(true));
+				assertThat("モンタージュ画像が生成されること", dest.exists(), is(true));
 
 				Date destModifiedDate = new Date(dest.lastModified());
-				assertThat("dest のほうが src よりも時間的に後に作成されていること",
+				assertThat("モンタージュ画像のほうが元画像よりも時間的に後に作成されていること",
 						destModifiedDate.after(srcModifiedDate), is(true));
 
 				BufferedImage destImage = ImageIO.read(dest);
-				assertThat(destImage.getWidth(), is(200));
-				assertThat(destImage.getHeight(), is(200));
+				assertThat("モンタージュ画像の横幅が 200px であること", destImage.getWidth(), is(200));
+				assertThat("モンタージュ画像の高さが 200px であること", destImage.getHeight(), is(200));
 
 			}
 
