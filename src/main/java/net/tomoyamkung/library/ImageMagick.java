@@ -44,7 +44,7 @@ public class ImageMagick {
 		validateDestFile(dest);
 		validateSize(size, "サムネイルサイズ");
 
-		writeLog(String.format(
+		writeDebugLog(String.format(
 				"commandPath:%s, srcPath:%s, destPath:%s, size:%s",
 				commandPath, src, dest, size));
 
@@ -61,7 +61,7 @@ public class ImageMagick {
 	 * @param message
 	 *            出力するメッセージ
 	 */
-	private static void writeLog(String message) {
+	private static void writeDebugLog(String message) {
 		if (log.isDebugEnabled()) {
 			log.debug(message);
 		}
@@ -193,7 +193,7 @@ public class ImageMagick {
 		validateSrcFile(src);
 		validateDestFile(dest);
 
-		writeLog(String.format("commandPath:%s, srcPath:%s, destPath:%s",
+		writeDebugLog(String.format("commandPath:%s, srcPath:%s, destPath:%s",
 				commandPath, src, dest));
 
 		ProcessBuilder builder = new ProcessBuilder(commandPath,
@@ -215,7 +215,7 @@ public class ImageMagick {
 			InterruptedException {
 		command.validate();
 
-		writeLog(command.toString());
+		writeDebugLog(command.toString());
 
 		ProcessBuilder builder = new ProcessBuilder(command.getCommand());
 		executeProcess(builder);
@@ -252,7 +252,7 @@ public class ImageMagick {
 		String message = String.format(
 				"commandPath:%s, srcFiles:%s, tile:%s, geometry:%s, dest:%s",
 				commandPath, srcFiles.toString(), tile, geometry, dest);
-		writeLog(message);
+		writeDebugLog(message);
 
 		List<String> command = new ArrayList<String>();
 		command.add(commandPath);
