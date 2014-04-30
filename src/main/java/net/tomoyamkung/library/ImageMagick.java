@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.tomoyamkung.library.size.AspectRatio;
+import net.tomoyamkung.library.size.Size;
 import net.tomoyamkung.library.util.ListUtil;
-import net.tomoyamkung.library.util.StringUtil;
 
 import org.apache.log4j.Logger;
 
@@ -20,6 +21,71 @@ import org.apache.log4j.Logger;
 public class ImageMagick {
 
 	private static final Logger log = Logger.getLogger(ImageMagick.class);
+
+	/**
+	 * 画像をリサイズする。
+	 * 
+	 * <code>src</code> を元画像として <code>dest</code> にリサイズした画像を作成する。
+	 * 
+	 * 「元画像の横幅を 300px にしてリサイズする（高さは縦横比を維持して自動計算する）」と指定する。
+	 * <code>SquareSide</code> は、基準とする横幅、もしくは、高さを指定する。 <code>pixel</code>
+	 * は、基準とする「辺」のピクセルを指定する。
+	 * 
+	 * @param commandPath
+	 *            convert コマンドの絶対パス。
+	 * @param src
+	 *            生成元のファイル。リサイズしたい画像ファイル
+	 * @param dest
+	 *            生成先のファイル。このファイルにリサイズした画像を作成する
+	 * @param side
+	 *            基準とする「辺」
+	 * @param pixel
+	 *            基準とする「辺」のピクセル
+	 * @throws IOException
+	 *             commandPath に指定されているパスが convert コマンドではなかった場合
+	 * @throws InterruptedException
+	 *             ImageMagick の操作に失敗した場合
+	 */
+	public static void resize(String commandPath, File src, File dest,
+			SquareSide side, int pixel) throws IOException,
+			InterruptedException {
+		Validator.validateCommandPath(commandPath);
+		Validator.validateSrcFile(src);
+		Validator.validateDestFile(dest);
+		Validator.validatePixel(pixel);
+
+		Size resizedSize = AspectRatio.measure(src, side, pixel);
+		createThumbnail(commandPath, resizedSize.toString(),
+				src.getAbsolutePath(), dest.getAbsolutePath());
+	}
+
+	/**
+	 * サムネイル画像を作成する。
+	 * 
+	 * @param commandPath
+	 *            convert コマンドの絶対パス。
+	 * @param size
+	 *            サムネイルサイズ。[0-9]{1,}x[0-9]{1,} で指定する
+	 * @param srcAbsolutePath
+	 *            生成元画像の絶対パス
+	 * @param destAbsolutePath
+	 *            生成先画像の絶対パス
+	 * @throws InterruptedException
+	 *             ImageMagick の操作に失敗した場合
+	 * @throws IOException
+	 *             commandPath に指定されているパスが convert コマンドではなかった場合
+	 */
+	private static void createThumbnail(String commandPath, String size,
+			String srcAbsolutePath, String destAbsolutePath)
+			throws InterruptedException, IOException {
+		writeDebugLog(String.format(
+				"commandPath:%s, srcPath:%s, destPath:%s, size:%s",
+				commandPath, srcAbsolutePath, destAbsolutePath, size));
+
+		ProcessBuilder builder = new ProcessBuilder(commandPath, "-thumbnail",
+				size, srcAbsolutePath, destAbsolutePath);
+		executeProcess(builder);
+	}
 
 	/**
 	 * サムネイル画像を作成する。
@@ -39,18 +105,16 @@ public class ImageMagick {
 	 */
 	public static void createThumbnail(String commandPath, File src, File dest,
 			String size) throws IOException, InterruptedException {
-		validateCommandPath(commandPath);
-		validateSrcFile(src);
-		validateDestFile(dest);
-		validateSize(size, "サムネイルサイズ");
-
-		writeDebugLog(String.format(
-				"commandPath:%s, srcPath:%s, destPath:%s, size:%s",
-				commandPath, src, dest, size));
+		Validator.validateCommandPath(commandPath);
+		Validator.validateSrcFile(src);
+		Validator.validateDestFile(dest);
+		Validator.validateSize(size, "サムネイルサイズ");
 
 		ProcessBuilder builder = new ProcessBuilder(commandPath, "-thumbnail",
 				size, src.getAbsolutePath(), dest.getAbsolutePath());
 		executeProcess(builder);
+		createThumbnail(commandPath, size, src.getAbsolutePath(),
+				dest.getAbsolutePath());
 	}
 
 	/**
@@ -84,96 +148,6 @@ public class ImageMagick {
 	}
 
 	/**
-	 * サイズ指定の妥当性を確認する。
-	 * 
-	 * 次の条件に当てはまる場合は不適切と見なし <code>IllegalArgumentException</code> を生成する。
-	 * 
-	 * <ul>
-	 * <li>null である</li>
-	 * <li>ブランクである</li>
-	 * <li>[0-9]{1,}x[0-9]{1,} に当てはまっていない</li>
-	 * </ul>
-	 * 
-	 * @param size
-	 * @param keyword
-	 *            認する項目名
-	 */
-	private static void validateSize(String size, String keyword) {
-		if (StringUtil.isNullOrEmpty(size)) {
-			throw new IllegalArgumentException(String.format(
-					"%s may not be specified.", keyword));
-		}
-
-		String regexp = "[0-9]{1,}x[0-9]{1,}";
-		if (!size.matches(regexp)) {
-			throw new IllegalArgumentException(String.format(
-					"%s は %s で指定してください。", keyword, regexp));
-		}
-	}
-
-	/**
-	 * 生成先ファイルの妥当性を確認する。
-	 * 
-	 * 次の条件に当てはまる場合は不適切と見なし <code>IllegalArgumentException</code> を生成する。
-	 * 
-	 * <ul>
-	 * <li>null である</li>
-	 * </ul>
-	 * 
-	 * @param dest
-	 *            生成先のファイル
-	 */
-	private static void validateDestFile(File dest) {
-		if (dest == null) {
-			throw new IllegalArgumentException("dest may not be specified.");
-		}
-	}
-
-	/**
-	 * 生成元ファイルの妥当性を確認する。
-	 * 
-	 * 次の条件に当てはまる場合は不適切と見なし例外を生成する。
-	 * 
-	 * <ul>
-	 * <li>null である → <code>IllegalArgumentException</code> を生成する</li>
-	 * <li>ファイルが存在しない → <code>FileNotFoundException</code> を生成する</li>
-	 * </ul>
-	 * 
-	 * @param src
-	 *            生成元のファイル
-	 * @throws FileNotFoundException
-	 *             ファイルが存在しない場合
-	 */
-	private static void validateSrcFile(File src) throws FileNotFoundException {
-		if (src == null) {
-			throw new IllegalArgumentException("src may not be specified.");
-		}
-		if (!src.exists()) {
-			throw new FileNotFoundException("src file may not Found.");
-		}
-	}
-
-	/**
-	 * コマンドパスの妥当性を確認する。
-	 * 
-	 * 次の条件に当てはまる場合は不適切と見なし <code>IllegalArgumentException</code> を生成する。
-	 * 
-	 * <ul>
-	 * <li>null である</li>
-	 * <li>ブランクである</li>
-	 * </ul>
-	 * 
-	 * @param commandPath
-	 *            使用するコマンドのパス
-	 */
-	private static void validateCommandPath(String commandPath) {
-		if (StringUtil.isNullOrEmpty(commandPath)) {
-			throw new IllegalArgumentException(
-					"commandPath may not be specified.");
-		}
-	}
-
-	/**
 	 * Exif を削除する。
 	 * 
 	 * @param commandPath
@@ -189,9 +163,9 @@ public class ImageMagick {
 	 */
 	public static void removeExif(String commandPath, File src, File dest)
 			throws IOException, InterruptedException {
-		validateCommandPath(commandPath);
-		validateSrcFile(src);
-		validateDestFile(dest);
+		Validator.validateCommandPath(commandPath);
+		Validator.validateSrcFile(src);
+		Validator.validateDestFile(dest);
 
 		writeDebugLog(String.format("commandPath:%s, srcPath:%s, destPath:%s",
 				commandPath, src, dest));
@@ -242,12 +216,12 @@ public class ImageMagick {
 	public static void createMontage(String commandPath, List<File> srcFiles,
 			String tile, String geometry, File dest) throws IOException,
 			InterruptedException {
-		validateCommandPath(commandPath);
+		Validator.validateCommandPath(commandPath);
 		validateSrcFiles(srcFiles);
-		validateSize(tile, "結合する形式");
+		Validator.validateSize(tile, "結合する形式");
 		validateSrcFileSize(srcFiles, tile);
-		validateSize(geometry, "結合元画像ファイルの大きさ");
-		validateDestFile(dest);
+		Validator.validateSize(geometry, "結合元画像ファイルの大きさ");
+		Validator.validateDestFile(dest);
 
 		String message = String.format(
 				"commandPath:%s, srcFiles:%s, tile:%s, geometry:%s, dest:%s",
@@ -311,11 +285,11 @@ public class ImageMagick {
 	 */
 	private static void validateSrcFiles(List<File> srcFiles)
 			throws FileNotFoundException {
-		if(ListUtil.isNullOrEmpty(srcFiles)) {
+		if (ListUtil.isNullOrEmpty(srcFiles)) {
 			throw new IllegalArgumentException("srcFiles may not be specified.");
 		}
 		for (File src : srcFiles) {
-			validateSrcFile(src);
+			Validator.validateSrcFile(src);
 		}
 	}
 

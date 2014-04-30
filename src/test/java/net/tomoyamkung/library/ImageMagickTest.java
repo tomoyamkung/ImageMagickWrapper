@@ -14,7 +14,9 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import net.tomoyamkung.library.props.AppProperties;
+import net.tomoyamkung.library.size.Size;
 
+import org.hamcrest.beans.SamePropertyValuesAs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +63,102 @@ public class ImageMagickTest {
 	 * サムネイル画像の縦横サイズ。
 	 */
 	private static final String SIZE = "200x100";
+
+	@RunWith(Enclosed.class)
+	public static class Resize {
+
+		public static class 異常系 {
+
+			@Test(expected = IllegalArgumentException.class)
+			public void commandPathがNullの場合() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(null, src, dest, SquareSide.portrait, 1);
+				// Verify
+			}
+
+			@Test(expected = IOException.class)
+			public void commandPathに指定したパスがconvertコマンドではなかった場合()
+					throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(WRONG_COMMAND_CONVERT_PATH, src, dest,
+						SquareSide.portrait, 1);
+				// Verify
+			}
+
+			@Test(expected = IllegalArgumentException.class)
+			public void srcがNullの場合() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(COMMAND_CONVERT_PATH, null, dest,
+						SquareSide.portrait, 1);
+				// Verify
+			}
+
+			@Test(expected = FileNotFoundException.class)
+			public void srcのファイルが存在しない場合() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(COMMAND_CONVERT_PATH, notFound, dest,
+						SquareSide.portrait, 1);
+				// Verify
+			}
+
+			@Test(expected = IllegalArgumentException.class)
+			public void destがNullの場合() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(COMMAND_CONVERT_PATH, src, null,
+						SquareSide.portrait, 1);
+				// Verify
+			}
+
+			@Test(expected = IllegalArgumentException.class)
+			public void pixelが負の場合() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(COMMAND_CONVERT_PATH, src, dest,
+						SquareSide.portrait, -1);
+				// Verify
+			}
+
+			@Test(expected = IllegalArgumentException.class)
+			public void pixelが0の場合() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(COMMAND_CONVERT_PATH, src, dest,
+						SquareSide.portrait, 0);
+				// Verify
+			}
+		}
+
+		public static class 正常系 {
+
+			@Before
+			public void setUp() throws Exception {
+				deleteTestFiles();
+			}
+
+			@After
+			public void tearDown() throws Exception {
+				deleteTestFiles();
+			}
+
+			@Test
+			public void 元画像を400x300にリサイズ() throws Exception {
+				// Setup
+				// Exercise
+				ImageMagick.resize(COMMAND_CONVERT_PATH, src, dest,
+						SquareSide.portrait, 400);
+				// Verify
+				assertThat("リサイズした画像の大きさが 400,300 であること", new Size(dest),
+						is(SamePropertyValuesAs.samePropertyValuesAs(new Size(
+								400, 300))));
+			}
+		}
+
+	}
 
 	@RunWith(Enclosed.class)
 	public static class CreateMontage {
@@ -290,8 +388,10 @@ public class ImageMagickTest {
 						destModifiedDate.after(srcModifiedDate), is(true));
 
 				BufferedImage destImage = ImageIO.read(dest);
-				assertThat("モンタージュ画像の横幅が 200px であること", destImage.getWidth(), is(200));
-				assertThat("モンタージュ画像の高さが 200px であること", destImage.getHeight(), is(200));
+				assertThat("モンタージュ画像の横幅が 200px であること", destImage.getWidth(),
+						is(200));
+				assertThat("モンタージュ画像の高さが 200px であること", destImage.getHeight(),
+						is(200));
 
 			}
 
