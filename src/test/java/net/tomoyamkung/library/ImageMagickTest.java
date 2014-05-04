@@ -150,7 +150,7 @@ public class ImageMagickTest {
 				// Setup
 				// Exercise
 				ImageMagick.resize(COMMAND_CONVERT_PATH, src, dest,
-						SquareSide.portrait, 400);
+						SquareSide.landscape, 400);
 				// Verify
 				assertThat("リサイズした画像の大きさが 400,300 であること", new Size(dest),
 						is(SamePropertyValuesAs.samePropertyValuesAs(new Size(

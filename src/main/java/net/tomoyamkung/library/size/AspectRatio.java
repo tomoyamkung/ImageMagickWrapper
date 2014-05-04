@@ -50,13 +50,13 @@ public class AspectRatio {
 	protected static Size measureWithSize(Size srcSize, SquareSide side,
 			int pixel) {
 		if (side == SquareSide.landscape) {
-			int width = (srcSize.getWidth() * pixel) / srcSize.getHeight();
-			return new Size(width, pixel);
+			int height = (srcSize.getHeight() * pixel) / srcSize.getWidth();
+			return new Size(pixel, height);
 		}
 
 		if (side == SquareSide.portrait) {
-			int height = (srcSize.getHeight() * pixel) / srcSize.getWidth();
-			return new Size(pixel, height);
+			int width = (srcSize.getWidth() * pixel) / srcSize.getHeight();
+			return new Size(width, pixel);
 		}
 
 		return null;
